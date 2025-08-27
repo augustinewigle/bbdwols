@@ -7,6 +7,7 @@
 #' @param diag Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE
 #' @importFrom MCMCpack rdirichlet
 #' @importFrom nnet multinom
+#' @importFrom dplyr contains select
 #' @export
 #' @return A data.frame with columns corresponding to parameters in the outcome model and each row is an iteration of the bbdwols
 
@@ -24,13 +25,17 @@ bbdwols <- function(outcome.mod,
                    trt.name = trt.name,
                    maxit = maxit)
 
+  # Remove parameters that aren't in the blip function
+
+  blip <- dplyr::select(res, dplyr::contains(trt.name))
+
   # Process results to give point estimates and standard errors
 
-  estimates <- apply(res, 2, mean)
-  names(estimates) <- colnames(res)
+  estimates <- apply(blip, 2, mean)
+  names(estimates) <- colnames(blip)
 
-  ses <- apply(res, 2, sd)
-  names(ses) <- colnames(res)
+  ses <- apply(blip, 2, sd)
+  names(ses) <- colnames(blip)
 
   df <- matrix(c(estimates, ses), ncol = 2, dimnames = list(names(estimates), c("Estimate", "Std. Error")))
 
@@ -48,7 +53,9 @@ bbdwols <- function(outcome.mod,
 
   }
 
+  varcovar <- cov(blip, blip)
+
   return(list(coefficients = df,
-              convergence = convergence))
+              varcovar = varcovar))
 
 }

@@ -34,10 +34,10 @@ bbdwols <- function(outcome.mod,
   estimates <- apply(blip, 2, mean)
   names(estimates) <- colnames(blip)
 
-  ses <- apply(blip, 2, sd)
-  names(ses) <- colnames(blip)
+  # ses <- apply(blip, 2, sd)
+  # names(ses) <- colnames(blip)
 
-  df <- matrix(c(estimates, ses), ncol = 2, dimnames = list(names(estimates), c("Estimate", "Std. Error")))
+  # df <- matrix(c(estimates, ses), ncol = 2, dimnames = list(names(estimates), c("Estimate", "Std. Error")))
 
   if(diag) {
 
@@ -55,7 +55,7 @@ bbdwols <- function(outcome.mod,
 
   varcovar <- cov(blip, blip)
 
-  return(list(coefficients = df,
+  return(list(coefficients = estimates,
               varcovar = varcovar))
 
 }

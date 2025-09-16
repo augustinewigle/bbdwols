@@ -5,6 +5,7 @@
 #' @param trt.name A string giving the name of the outcome in dat
 #' @param L The number of bootstrap samples to take
 #' @param diag Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE
+#' @param full_posterior Logical indicating if full posterior samples should be returned, or just point estimates. Default is FALSE
 #' @importFrom MCMCpack rdirichlet
 #' @importFrom nnet multinom
 #' @importFrom dplyr contains select
@@ -17,6 +18,7 @@ bbdwols <- function(outcome.mod,
                     trt.name,
                     maxit = 500,
                     diag = TRUE,
+                    full_posterior = FALSE,
                     ...) {
 
   res <- i.bbdwols(outcome.mod = outcome.mod,
@@ -55,7 +57,20 @@ bbdwols <- function(outcome.mod,
 
   varcovar <- cov(blip, blip)
 
-  return(list(coefficients = estimates,
-              varcovar = varcovar))
+  if(full_posterior) {
+
+    return(list(coefficients = estimates,
+                varcovar = varcovar,
+                full_posterior = blip))
+
+  } else {
+
+    return(list(coefficients = estimates,
+                varcovar = varcovar,
+                full_posterior = FALSE))
+
+  }
+
+
 
 }

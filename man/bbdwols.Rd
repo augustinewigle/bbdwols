@@ -4,7 +4,17 @@
 \alias{bbdwols}
 \title{Bayesian Bootstrap dWOLS}
 \usage{
-bbdwols(outcome.mod, trt.mod, dat, L, trt.name, maxit = 500, diag = TRUE, ...)
+bbdwols(
+  outcome.mod,
+  trt.mod,
+  dat,
+  L,
+  trt.name,
+  maxit = 500,
+  diag = TRUE,
+  full_posterior = FALSE,
+  ...
+)
 }
 \arguments{
 \item{outcome.mod}{A formula for the outcome model}
@@ -18,6 +28,8 @@ bbdwols(outcome.mod, trt.mod, dat, L, trt.name, maxit = 500, diag = TRUE, ...)
 \item{trt.name}{A string giving the name of the outcome in dat}
 
 \item{diag}{Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE}
+
+\item{full_posterior}{Logical indicating if full posterior samples should be returned, or just point estimates. Default is FALSE}
 }
 \value{
 A data.frame with columns corresponding to parameters in the outcome model and each row is an iteration of the bbdwols

@@ -14,6 +14,7 @@ bbdwols(
   maxit = 500,
   diag = TRUE,
   full_posterior = FALSE,
+  alpha = 0.05,
   ...
 )
 }
@@ -33,6 +34,8 @@ bbdwols(
 \item{diag}{Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE}
 
 \item{full_posterior}{Logical indicating if full posterior samples should be returned, or just point estimates. Default is FALSE}
+
+\item{alpha}{1-confidence level for percentile-based credible intervals. Default to 0.05, ie 95\% credible intervals}
 }
 \value{
 A data.frame with columns corresponding to parameters in the outcome model and each row is an iteration of the bbdwols

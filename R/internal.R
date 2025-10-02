@@ -14,12 +14,8 @@ i.bbdwols <- function(outcome.mod,
 
   outcome.name <- paste(f_lhs(outcome.mod))
 
-
-
   # check for missing values in the outcome
-  dat$outmiss <- is.na(dat[,(colnames(dat) == outcome.name)])*1
-
-
+  dat$outmiss <- is.na(dat[,outcome.name])*1
 
   if(sum(dat$outmiss) == 0) { # no missing outcomes
 
@@ -29,7 +25,6 @@ i.bbdwols <- function(outcome.mod,
       missingoutcome <- FALSE
 
     }
-
 
   } else { # missing outcomes
 

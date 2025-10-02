@@ -5,21 +5,95 @@
 i.bbdwols <- function(outcome.mod,
                       trt.mod,
                       dat, L,
-                      trt.name, maxit = 500) {
+                      trt.name, maxit = 500,
+                      missingoutcome = FALSE,
+                      outmiss.mod = NULL
+                      ) {
 
-  n <- nrow(dat)
+  if(missingoutcome & is.null(outmiss.mod)) {
+
+    stop("The outcome missingness model must be specified through `outmiss.mod` if `missingoutcome = TRUE`.")
+
+  }
+
   dat <- as.data.frame(dat)
 
+  outcome.name <- paste(f_lhs(outcome.mod))
+
+  # check for missing values in the outcome
+  dat$outmiss <- is.na(dat[,outcome.name])*1
+
+  if(sum(dat$outmiss) == 0) { # no missing outcomes
+
+    if(missingoutcome) {
+
+      warning("No missing outcomes detected")
+      missingoutcome <- FALSE
+
+    }
+
+    dat <- dat[dat$outmiss!=0,]
+
+
+  } else { # missing outcomes
+
+    if (!missingoutcome) {
+
+      warning("Observations with missing outcomes will be removed from the analysis. To adjust for missing outcomes through weighting, set `missingoutcome = TRUE`")
+
+      dat <- dat[dat$outmiss!=0,]
+
+    }
+
+  }
+
+
+
+  n <- nrow(dat)
+
+  # Start the Bayesian Bootstrap
   for(i in 1:L) {
 
     dat$omega <- t(rdirichlet(1, rep(1,n)))
 
-    # Get treatment model weights
-    tm <- nnet::multinom(trt.mod,
-                   data = dat,
-                   maxit = maxit,
-                   weights = omega,
-                   trace = F, model = TRUE)
+    if(missingoutcome) {
+
+      # estimate outcome missingness propensity
+
+      dat$omegan <- dat$omega*n
+
+      outmiss.mod <- reformulate(paste(rlang::f_rhs(outmiss.mod)), "outmiss")
+
+      outmissm <- glm(outmiss.mod, family = quasibinomial(),
+                       data = dat,
+                       weights = omegan)
+
+      dat$prob.miss <- outmissm$fitted.values
+
+      dat$omegamiss <- dat$omega/dat$prob.miss
+
+      # Get treatment model weights
+
+      tm <- nnet::multinom(trt.mod,
+                           data = dat[,colnames(dat)!=outcome.name],
+                           maxit = maxit,
+                           weights = omegamiss, # weight for prob missing
+                           trace = F, model = TRUE)
+
+
+    } else {
+
+      # Get treatment model weights
+
+      tm <- nnet::multinom(trt.mod,
+                           data = dat[,colnames(dat)!=outcome.name],
+                           maxit = maxit,
+                           weights = omega,
+                           trace = F, model = TRUE)
+
+    }
+
+
     if(tm$convergence !=0) {
 
       warning(paste0("Iteration l = ", i, " nnet did not converge"))
@@ -37,14 +111,13 @@ i.bbdwols <- function(outcome.mod,
 
     ix <- match(dat[,trt.name], colnames(pis)) # Index of treatment they actually received
 
-    dat$iptws <- 1/pis[cbind(1:n, ix)]
-
-    # return(list(ix = ix, n = n, dat = dat, pis = pis, tm = tm)) # TODO remove
+    dat$iptws <- 1/pis[cbind(1:nrow(dat), ix)]
 
     # Estimate blip parameters
     bmod <- lm(outcome.mod,
                weights = omega*iptws,
-               data = dat)
+               data = dat,
+               subset = outmiss==0)
 
     if(i == 1) { # set up matrix after first iteration so we know how many parameters there are
 

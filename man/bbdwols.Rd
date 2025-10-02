@@ -9,7 +9,8 @@ bbdwols(
   trt.mod,
   dat,
   L,
-  trt.name,
+  missingoutcome,
+  outmiss.mod = NULL,
   maxit = 500,
   diag = TRUE,
   full_posterior = FALSE,
@@ -25,7 +26,9 @@ bbdwols(
 
 \item{L}{The number of bootstrap samples to take}
 
-\item{trt.name}{A string giving the name of the outcome in dat}
+\item{missingoutcome}{Logical indicating if probability of missingness weighting should be used to account for missing outcome data. If FALSE, observations with missing outcomes are removed for the analysis.}
+
+\item{outmiss.mod}{A formula describing the explanatory variables to include in the outcome missingness model, of the format ~ (explanatory variables)}
 
 \item{diag}{Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE}
 

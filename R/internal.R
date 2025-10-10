@@ -48,12 +48,11 @@ i.bbdwols <- function(outcome.mod,
   for(i in 1:L) {
 
     dat$omega <- t(rdirichlet(1, rep(1,n)))
+    dat$omegan <- dat$omega*n # improves convergence rate
 
     if(missingoutcome) {
 
       # estimate outcome missingness propensity
-
-      dat$omegan <- dat$omega*n
 
       outmiss.mod <- reformulate(paste(rlang::f_rhs(outmiss.mod)), "outmiss")
 
@@ -81,7 +80,7 @@ i.bbdwols <- function(outcome.mod,
       tm <- nnet::multinom(trt.mod,
                            data = dat[,colnames(dat)!=outcome.name],
                            maxit = maxit,
-                           weights = omega,
+                           weights = omegan,
                            trace = F, model = TRUE)
 
     }

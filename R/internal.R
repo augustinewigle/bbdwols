@@ -61,13 +61,20 @@ i.bbdwols <- function(outcome.mod,
                        weights = omegan)
 
       dat$prob.miss <- outmissm$fitted.values
-
-      dat$omegamiss <- dat$omega/dat$prob.miss
+      # dat$omegamiss <- dat$omega/dat$prob.miss
 
       # Get treatment model weights
 
+      # scale numeric data columns so they are between 0 and 1 for faster nnet convergence
+      tmod.dat <- dat[,colnames(dat)!=outcome.name]
+      ind <- sapply(tmod.dat, is.numeric)
+      tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      # Add missing probability with dirichlet weights
+      tmod.dat$omegamiss <- dat$omega/dat$prob.miss
+
       tm <- nnet::multinom(trt.mod,
-                           data = dat[,colnames(dat)!=outcome.name],
+                           data = tmod.dat,
                            maxit = maxit,
                            weights = omegamiss, # weight for prob missing
                            trace = F, model = TRUE)
@@ -75,10 +82,18 @@ i.bbdwols <- function(outcome.mod,
 
     } else {
 
+      # scale numeric data columns so they are between 0 and 1 for faster convergence in nnet
+      tmod.dat <- dat[,colnames(dat)!=outcome.name]
+      ind <- sapply(tmod.dat, is.numeric)
+      tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      # Add missing probability with dirichlet weights
+      tmod.dat$omegan <- dat$omegan
+
       # Get treatment model weights
 
       tm <- nnet::multinom(trt.mod,
-                           data = dat[,colnames(dat)!=outcome.name],
+                           data = tmod.dat,
                            maxit = maxit,
                            weights = omegan,
                            trace = F, model = TRUE)

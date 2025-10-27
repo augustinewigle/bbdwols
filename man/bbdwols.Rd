@@ -14,6 +14,7 @@ bbdwols(
   maxit = 500,
   diag = TRUE,
   full_posterior = FALSE,
+  scale_vars = TRUE,
   alpha = 0.05,
   ...
 )
@@ -34,6 +35,8 @@ bbdwols(
 \item{diag}{Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE}
 
 \item{full_posterior}{Logical indicating if full posterior samples should be returned, or just point estimates. Default is FALSE}
+
+\item{scale_vars}{Logical; should variables be scaled to approx 0,1 before fitting multinomial treatment model to speed convergence of nnet? Default is TRUE.}
 
 \item{alpha}{1-confidence level for percentile-based credible intervals. Default to 0.05, ie 95\% credible intervals}
 }

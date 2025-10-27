@@ -7,7 +7,8 @@ i.bbdwols <- function(outcome.mod,
                       dat, L,
                       trt.name, maxit = 500,
                       missingoutcome = FALSE,
-                      outmiss.mod = NULL
+                      outmiss.mod = NULL,
+                      scale_vars
                       ) {
 
   dat <- as.data.frame(dat)
@@ -65,10 +66,15 @@ i.bbdwols <- function(outcome.mod,
 
       # Get treatment model weights
 
-      # scale numeric data columns so they are between 0 and 1 for faster nnet convergence
       tmod.dat <- dat[,colnames(dat)!=outcome.name]
-      ind <- sapply(tmod.dat, is.numeric)
-      tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      if(scale_vars) {
+
+        # scale numeric data columns so they are between 0 and 1 for faster nnet convergence
+        ind <- sapply(tmod.dat, is.numeric)
+        tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      }
 
       # Add missing probability with dirichlet weights
       tmod.dat$omegamiss <- dat$omega/dat$prob.miss
@@ -82,10 +88,16 @@ i.bbdwols <- function(outcome.mod,
 
     } else {
 
-      # scale numeric data columns so they are between 0 and 1 for faster convergence in nnet
       tmod.dat <- dat[,colnames(dat)!=outcome.name]
-      ind <- sapply(tmod.dat, is.numeric)
-      tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      if(scale_vars) {
+
+        # scale numeric data columns so they are between 0 and 1 for faster convergence in nnet
+
+        ind <- sapply(tmod.dat, is.numeric)
+        tmod.dat[ind] <- lapply(tmod.dat[ind], function(x) (x-min(x))/(max(x)-min(x)))
+
+      }
 
       # Add missing probability with dirichlet weights
       tmod.dat$omegan <- dat$omegan

@@ -8,6 +8,7 @@
 #' @param diag Logical indicating if diagnostic plots to assess convergence of bootstrap algorithm should be made, default TRUE
 #' @param full_posterior Logical indicating if full posterior samples should be returned, or just point estimates. Default is FALSE
 #' @param alpha 1-confidence level for percentile-based credible intervals. Default to 0.05, ie 95% credible intervals
+#' @param scale_vars Logical; should variables be scaled to approx 0,1 before fitting multinomial treatment model to speed convergence of nnet? Default is TRUE.
 #' @importFrom MCMCpack rdirichlet
 #' @importFrom nnet multinom
 #' @importFrom dplyr contains select
@@ -24,6 +25,7 @@ bbdwols <- function(outcome.mod,
                     maxit = 500,
                     diag = TRUE,
                     full_posterior = FALSE,
+                    scale_vars = TRUE,
                     alpha = 0.05,
                     ...) {
 
@@ -35,7 +37,8 @@ bbdwols <- function(outcome.mod,
                    trt.name = trt.name,
                    missingoutcome = missingoutcome,
                    outmiss.mod = outmiss.mod,
-                   maxit = maxit)
+                   maxit = maxit,
+                   scale_vars = scale_vars)
 
   # Remove parameters that aren't in the blip function
 

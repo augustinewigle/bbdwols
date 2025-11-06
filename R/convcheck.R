@@ -41,7 +41,7 @@ convcheck <- function(obj, ...) {
 
   }
 
-  # return(mc_df)
+  par(mfrow=c(1,1))
 
 
 }

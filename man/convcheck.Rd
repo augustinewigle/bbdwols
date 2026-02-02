@@ -2,18 +2,20 @@
 % Please edit documentation in R/convcheck.R
 \name{convcheck}
 \alias{convcheck}
-\title{Assess convergence of Bayesian Bootstrap for a bbdwols object}
+\title{Assess convergence of Bayesian Bootstrap from an fwb object object}
 \usage{
-convcheck(obj, ...)
+convcheck(fwbobj, tix = "random")
 }
 \arguments{
-\item{obj}{A bbdwols object}
+\item{fwbobj}{Result of running fwb with do_one_bbdwols function}
 
-\item{...}{additional arguments to \code{par}}
+\item{tix}{index of blip parameters to plot. Either numeric vector,
+"random" which will randomly choose 1/4 of parameters to check, or
+"all" which will plot all parameters}
 }
 \value{
 Empty
 }
 \description{
-Assess convergence of Bayesian Bootstrap for a bbdwols object
+Assess convergence of Bayesian Bootstrap from an fwb object object
 }

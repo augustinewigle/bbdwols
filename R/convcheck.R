@@ -1,47 +1,74 @@
-#' Assess convergence of Bayesian Bootstrap for a bbdwols object
-#' @param obj A bbdwols object
-#' @param ... additional arguments to `par`
+#' Assess convergence of Bayesian Bootstrap from an fwb object object
+#' @param fwbobj Result of running fwb with do_one_bbdwols function
+#' @param tix index of blip parameters to plot. Either numeric vector,
+#' "random" which will randomly choose 1/4 of parameters to check, or
+#' "all" which will plot all parameters
 #' @returns Empty
 #' @export
 
-convcheck <- function(obj, ...) {
+convcheck <- function(fwbobj, tix = "random") {
 
-  # Remove parameters that are unestimable so all NA
-  notna <- apply(obj, 2, function(x) !anyNA(x))
+  objtemp <- fwbobj$t
 
-  obj <- obj[,notna]
+  nblip <- ncol(objtemp)
 
-  L <- nrow(obj)
+  if(tix[1] == "random") {
 
-  npar <- ncol(obj)
+    # if nblip < 6, just plot them all
+    if(nblip < 5) {
 
-  inc <- ceiling(L/1000)
+      message("Less than 5 parameters, plotting all...")
+      tix <- 1:nblip
 
-  # set up data.frame
-  calc <- seq(2, L, by = inc)
-  mc_df <- matrix(nrow = length(calc), ncol = npar+1)
+    } else {
 
-  for(i in 1:length(calc)) {
+      message("Randomly selecting one quarter of parameters...")
+      ncheck <- ceiling(nblip*0.25)
+      tix <- sample(1:nblip, ncheck)
 
-    mc_df[i,1] <- calc[i]
+    }
 
-    mc_df[i,2:ncol(mc_df)] <- apply(obj[1:calc[i],], 2, sd)
 
-  }
+  } else if (tix[1] == "all") {
 
-  # Make plots
-  xlab <- "MC Iteration"
-  ylabs <- paste0(colnames(obj), "\nMC SD")
-  par(mfrow = c(4, ceiling(npar/4)), mar = c(4, 6, 2, 1), ...)
-
-  for(k in 1:npar) {
-
-    p <- plot(mc_df[,1], mc_df[,k+1], type = "l", col = "orchid4", xlab = xlab, ylab = ylabs[k])
-    invisible(p)
+    tix <- 1:nblip
 
   }
 
-  par(mfrow=c(1,1))
+  obj <- objtemp[,tix]
+
+  if(length(tix)==1) {
+
+    obj <- matrix(obj, ncol = 1, dimnames = list(NULL, colnames(objtemp)[tix]))
+
+  }
+
+  runningsd <- matrix(nrow = nrow(obj)-1, ncol = ncol(obj))
+
+  for(i in 1:ncol(obj)) {
+
+    for(j in 2:nrow(obj)) {
+
+      runningsd[j-1,i] <- sd(obj[1:j, i])
+
+    }
+
+  }
+
+  runningsd <- data.frame(runningsd, iter = 2:nrow(obj))
+
+  colnames(runningsd)[1:ncol(obj)] <- colnames(obj)
+
+  plotlist <- vector(length = length(tix), mode = "list")
+
+  for(j in 1:ncol(obj)) {
+
+    plotlist[[j]] <- plot(x = runningsd$iter, y = runningsd[,j], xlab = "Iters", ylab = "SD over MC iters",
+               main = paste0("Parameter: ", colnames(obj)[j]))
+
+  }
+
+  return(invisible(plotlist))
 
 
 }
